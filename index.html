@@ -1,0 +1,1354 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestionnaire de Budget Personnel - FCFA</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        /* ===== VARIABLES CSS ===== */
+        :root {
+            --primary-color: #8B7355;
+            --success-color: #A0826D;
+            --warning-color: #C19A6B;
+            --danger-color: #8B6F47;
+            --bg-color: #F5F1ED;
+            --card-bg: #FDFBF7;
+            --text-primary: #4A3728;
+            --text-secondary: #8B7355;
+            --border-color: #D4C4B0;
+            --shadow: 0 1px 3px rgba(139, 115, 85, 0.15);
+            --shadow-lg: 0 10px 25px rgba(139, 115, 85, 0.2);
+            --chrome-light: #C0C0C0;
+            --chrome-dark: #A8A8A8;
+            --chrome-accent: #D3D3D3;
+        }
+
+        /* ===== RESET & BASE ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        /* ===== HEADER ===== */
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: linear-gradient(135deg, #8B7355, #A0826D, #C0C0C0);
+            color: white;
+            border-radius: 12px;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 0.95rem;
+        }
+
+        /* ===== CONTAINER ===== */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* ===== DASHBOARD CARDS ===== */
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card-stat {
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            border-left: 4px solid var(--primary-color);
+            transition: transform 0.2s;
+        }
+
+        .card-stat:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .card-stat.success {
+            border-left-color: var(--success-color);
+        }
+
+        .card-stat.warning {
+            border-left-color: var(--warning-color);
+        }
+
+        .card-stat.danger {
+            border-left-color: var(--danger-color);
+        }
+
+        .card-stat-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .card-stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        /* ===== SECTIONS ===== */
+        .section {
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            margin-bottom: 25px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        /* ===== BUTTONS ===== */
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #6B5335;
+            transform: translateY(-1px);
+        }
+
+        .btn-success {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .btn-danger {
+            background: var(--danger-color);
+            color: white;
+            padding: 6px 12px;
+            font-size: 0.85rem;
+        }
+
+        .btn-danger:hover {
+            background: #6B5335;
+        }
+
+        /* ===== FORMS ===== */
+        .form-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .input-group label {
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin-bottom: 6px;
+            color: var(--text-secondary);
+        }
+
+        .input-group input,
+        .input-group select {
+            padding: 10px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 0.95rem;
+            transition: border-color 0.2s;
+        }
+
+        .input-group input:focus,
+        .input-group select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        /* ===== TABLES ===== */
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        thead {
+            background: var(--bg-color);
+        }
+
+        th {
+            padding: 12px;
+            text-align: left;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.95rem;
+        }
+
+        tr:hover {
+            background: var(--bg-color);
+        }
+
+        .badge {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .badge-alimentaire {
+            background: #E8DCC8;
+            color: #6B5335;
+        }
+
+        .badge-transport {
+            background: #D4C4B0;
+            color: #4A3728;
+        }
+
+        .badge-loisirs {
+            background: #C19A6B;
+            color: #FDFBF7;
+        }
+
+        .badge-shopping {
+            background: #C0C0C0;
+            color: #4A3728;
+        }
+
+        .badge-urgence {
+            background: #8B6F47;
+            color: #FDFBF7;
+        }
+
+        .badge-autre {
+            background: #D3D3D3;
+            color: #4A3728;
+        }
+
+        /* Couleurs personnalisables pour nouvelles catégories */
+        .badge-marron-clair {
+            background: #C19A6B;
+            color: #FDFBF7;
+        }
+
+        .badge-marron-fonce {
+            background: #8B6F47;
+            color: #FDFBF7;
+        }
+
+        .badge-chrome {
+            background: #C0C0C0;
+            color: #4A3728;
+        }
+
+        .badge-beige {
+            background: #E8DCC8;
+            color: #6B5335;
+        }
+
+        .badge-caramel {
+            background: #A0826D;
+            color: #FDFBF7;
+        }
+
+        .badge-gris {
+            background: #808080;
+            color: #FDFBF7;
+        }
+
+        /* Style pour les badges de catégories dans la liste */
+        .categorie-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            background: var(--card-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+
+        .categorie-item .badge {
+            padding: 4px 12px;
+        }
+
+        .categorie-item button {
+            padding: 2px 8px;
+            font-size: 0.75rem;
+        }
+
+        /* ===== PROGRESS BAR ===== */
+        .progress-container {
+            margin-top: 15px;
+        }
+
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+        }
+
+        .progress-bar {
+            height: 25px;
+            background: var(--border-color);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #A0826D, #C19A6B);
+            border-radius: 12px;
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .progress-fill.warning {
+            background: linear-gradient(90deg, #C19A6B, #D4A574);
+        }
+
+        .progress-fill.success {
+            background: linear-gradient(90deg, #8B7355, #A0826D);
+        }
+
+        /* ===== CHARTS ===== */
+        .charts-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        .chart-box {
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+        }
+
+        .chart-box h3 {
+            margin-bottom: 20px;
+            color: var(--text-primary);
+            font-size: 1.1rem;
+        }
+
+        /* ===== EMPTY STATE ===== */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-secondary);
+        }
+
+        .empty-state svg {
+            width: 60px;
+            height: 60px;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+
+        /* ===== UTILITIES ===== */
+        .text-success {
+            color: var(--success-color);
+        }
+
+        .text-danger {
+            color: var(--danger-color);
+        }
+
+        .text-warning {
+            color: var(--warning-color);
+        }
+
+        .text-muted {
+            color: var(--text-secondary);
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.5rem;
+            }
+
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+
+            .form-group {
+                grid-template-columns: 1fr;
+            }
+
+            .charts-container {
+                grid-template-columns: 1fr;
+            }
+
+            table {
+                font-size: 0.85rem;
+            }
+
+            th, td {
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- HEADER -->
+    <div class="header">
+        <h1>💰 Gestionnaire de Budget Personnel</h1>
+        <p>Prenez le contrôle de vos finances - Devise: FCFA</p>
+    </div>
+
+    <div class="container">
+        <!-- DASHBOARD -->
+        <div class="dashboard" id="dashboard">
+            <div class="card-stat success">
+                <div class="card-stat-label">Revenus du mois</div>
+                <div class="card-stat-value" id="totalRevenus">0 FCFA</div>
+            </div>
+            <div class="card-stat danger">
+                <div class="card-stat-label">Dépenses totales</div>
+                <div class="card-stat-value" id="totalDepenses">0 FCFA</div>
+            </div>
+            <div class="card-stat warning">
+                <div class="card-stat-label">Reste à vivre</div>
+                <div class="card-stat-value" id="resteAVivre">0 FCFA</div>
+            </div>
+            <div class="card-stat">
+                <div class="card-stat-label">Capacité d'épargne</div>
+                <div class="card-stat-value" id="capaciteEpargne">0 FCFA</div>
+            </div>
+        </div>
+
+        <!-- REVENUS -->
+        <div class="section">
+            <div class="section-header">
+                <h2 class="section-title">💵 Revenus</h2>
+            </div>
+            <div class="form-group">
+                <div class="input-group">
+                    <label>Nom du revenu</label>
+                    <input type="text" id="revenuNom" placeholder="Ex: Salaire principal">
+                </div>
+                <div class="input-group">
+                    <label>Montant (FCFA)</label>
+                    <input type="number" id="revenuMontant" placeholder="150000">
+                </div>
+                <div class="input-group">
+                    <label>Date de réception</label>
+                    <input type="date" id="revenuDate">
+                </div>
+                <div class="input-group" style="align-self: flex-end;">
+                    <button class="btn btn-success" onclick="ajouterRevenu()">➕ Ajouter</button>
+                </div>
+            </div>
+            <div class="table-container">
+                <table id="tableRevenus">
+                    <thead>
+                        <tr>
+                            <th>Nom</th>
+                            <th>Montant</th>
+                            <th>Date</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="listeRevenus"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- DÉPENSES FIXES -->
+        <div class="section">
+            <div class="section-header">
+                <h2 class="section-title">🏠 Dépenses Fixes (Récurrentes)</h2>
+            </div>
+            <div class="form-group">
+                <div class="input-group">
+                    <label>Nom de la dépense</label>
+                    <input type="text" id="fixeNom" placeholder="Ex: Loyer">
+                </div>
+                <div class="input-group">
+                    <label>Montant (FCFA)</label>
+                    <input type="number" id="fixeMontant" placeholder="50000">
+                </div>
+                <div class="input-group">
+                    <label>Fréquence</label>
+                    <select id="fixeFrequence">
+                        <option value="mensuelle">Mensuelle</option>
+                        <option value="hebdomadaire">Hebdomadaire</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Date de paiement</label>
+                    <input type="date" id="fixeDate">
+                </div>
+                <div class="input-group" style="align-self: flex-end;">
+                    <button class="btn btn-primary" onclick="ajouterDepenseFixe()">➕ Ajouter</button>
+                </div>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nom</th>
+                            <th>Montant</th>
+                            <th>Fréquence</th>
+                            <th>Date</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="listeDepensesFixes"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- GESTION DES CATÉGORIES -->
+        <div class="section">
+            <div class="section-header">
+                <h2 class="section-title">🏷️ Mes Catégories</h2>
+            </div>
+            <div class="form-group">
+                <div class="input-group">
+                    <label>Nom de la catégorie</label>
+                    <input type="text" id="categorieNom" placeholder="Ex: Santé">
+                </div>
+                <div class="input-group">
+                    <label>Couleur</label>
+                    <select id="categorieCouleur">
+                        <option value="marron-clair">🟤 Marron clair</option>
+                        <option value="marron-fonce">🟫 Marron foncé</option>
+                        <option value="chrome">⚪ Chrome</option>
+                        <option value="beige">🟡 Beige</option>
+                        <option value="caramel">🟠 Caramel</option>
+                        <option value="gris">⚫ Gris</option>
+                    </select>
+                </div>
+                <div class="input-group" style="align-self: flex-end;">
+                    <button class="btn btn-primary" onclick="ajouterCategorie()">➕ Ajouter</button>
+                </div>
+            </div>
+            <div id="listeCategoriesContainer">
+                <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 15px;">
+                    <div id="listeCategories"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- DÉPENSES VARIABLES -->
+        <div class="section">
+            <div class="section-header">
+                <h2 class="section-title">📊 Dépenses Variables</h2>
+            </div>
+            <div class="form-group">
+                <div class="input-group">
+                    <label>Nom de la dépense</label>
+                    <input type="text" id="variableNom" placeholder="Ex: Restaurant">
+                </div>
+                <div class="input-group">
+                    <label>Catégorie</label>
+                    <select id="variableCategorie">
+                        <!-- Les catégories seront chargées dynamiquement -->
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Montant (FCFA)</label>
+                    <input type="number" id="variableMontant" placeholder="5000">
+                </div>
+                <div class="input-group">
+                    <label>Date</label>
+                    <input type="date" id="variableDate">
+                </div>
+                <div class="input-group" style="align-self: flex-end;">
+                    <button class="btn btn-primary" onclick="ajouterDepenseVariable()">➕ Ajouter</button>
+                </div>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nom</th>
+                            <th>Catégorie</th>
+                            <th>Montant</th>
+                            <th>Date</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="listeDepensesVariables"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- DÉPENSES PROGRAMMÉES -->
+        <div class="section">
+            <div class="section-header">
+                <h2 class="section-title">📅 Dépenses Programmées</h2>
+            </div>
+            <div class="form-group">
+                <div class="input-group">
+                    <label>Nom de la dépense</label>
+                    <input type="text" id="programmeeNom" placeholder="Ex: Scolarité">
+                </div>
+                <div class="input-group">
+                    <label>Montant (FCFA)</label>
+                    <input type="number" id="programmeeMontant" placeholder="25000">
+                </div>
+                <div class="input-group">
+                    <label>Date prévue</label>
+                    <input type="date" id="programmeeDate">
+                </div>
+                <div class="input-group" style="align-self: flex-end;">
+                    <button class="btn btn-primary" onclick="ajouterDepenseProgrammee()">➕ Ajouter</button>
+                </div>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nom</th>
+                            <th>Montant</th>
+                            <th>Date prévue</th>
+                            <th>Statut</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="listeDepensesProgrammees"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ÉPARGNE -->
+        <div class="section">
+            <div class="section-header">
+                <h2 class="section-title">🎯 Objectif d'Épargne</h2>
+            </div>
+            <div class="form-group">
+                <div class="input-group">
+                    <label>Objectif mensuel (FCFA)</label>
+                    <input type="number" id="objectifEpargne" placeholder="50000" onchange="sauvegarderObjectifEpargne()">
+                </div>
+                <div class="input-group">
+                    <label>Montant épargné (FCFA)</label>
+                    <input type="number" id="montantEpargne" placeholder="0" onchange="sauvegarderMontantEpargne()">
+                </div>
+            </div>
+            <div class="progress-container">
+                <div class="progress-label">
+                    <span id="epargneLabel">Progression</span>
+                    <span id="epargnePourcentage">0%</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="epargneProgress" style="width: 0%">0%</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- GRAPHIQUES -->
+        <div class="charts-container">
+            <div class="chart-box">
+                <h3>📊 Répartition des dépenses</h3>
+                <canvas id="chartRepartition"></canvas>
+            </div>
+            <div class="chart-box">
+                <h3>📈 Dépenses par catégorie</h3>
+                <canvas id="chartCategories"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ========================================
+        // GESTION DU STOCKAGE LOCAL
+        // ========================================
+        
+        // Initialisation des données depuis localStorage
+        let revenus = JSON.parse(localStorage.getItem('revenus')) || [];
+        let depensesFixes = JSON.parse(localStorage.getItem('depensesFixes')) || [];
+        let depensesVariables = JSON.parse(localStorage.getItem('depensesVariables')) || [];
+        let depensesProgrammees = JSON.parse(localStorage.getItem('depensesProgrammees')) || [];
+        let objectifEpargne = parseFloat(localStorage.getItem('objectifEpargne')) || 0;
+        let montantEpargne = parseFloat(localStorage.getItem('montantEpargne')) || 0;
+        
+        // Catégories par défaut + catégories personnalisées
+        let categoriesParDefaut = [
+            { id: 'alimentaire', nom: 'Alimentaire', couleur: 'beige', defaut: true },
+            { id: 'transport', nom: 'Transport', couleur: 'chrome', defaut: true },
+            { id: 'loisirs', nom: 'Loisirs', couleur: 'marron-clair', defaut: true },
+            { id: 'shopping', nom: 'Shopping', couleur: 'chrome', defaut: true },
+            { id: 'urgence', nom: 'Urgence', couleur: 'marron-fonce', defaut: true },
+            { id: 'autre', nom: 'Autre', couleur: 'gris', defaut: true }
+        ];
+        
+        let categoriesPersonnalisees = JSON.parse(localStorage.getItem('categoriesPersonnalisees')) || [];
+        let toutesLesCategories = [...categoriesParDefaut, ...categoriesPersonnalisees];
+
+        // ========================================
+        // FONCTIONS UTILITAIRES
+        // ========================================
+        
+        // Formater un nombre en FCFA
+        function formatFCFA(montant) {
+            return new Intl.NumberFormat('fr-FR').format(montant) + ' FCFA';
+        }
+
+        // Générer un ID unique
+        function genererID() {
+            return Date.now().toString(36) + Math.random().toString(36).substr(2);
+        }
+
+        // Obtenir la date actuelle au format YYYY-MM-DD
+        function obtenirDateActuelle() {
+            return new Date().toISOString().split('T')[0];
+        }
+
+        // ========================================
+        // GESTION DES CATÉGORIES
+        // ========================================
+        
+        function ajouterCategorie() {
+            const nom = document.getElementById('categorieNom').value.trim();
+            const couleur = document.getElementById('categorieCouleur').value;
+
+            if (!nom) {
+                alert('Veuillez entrer un nom de catégorie');
+                return;
+            }
+
+            // Vérifier si la catégorie existe déjà
+            const existe = toutesLesCategories.some(c => 
+                c.nom.toLowerCase() === nom.toLowerCase()
+            );
+
+            if (existe) {
+                alert('Cette catégorie existe déjà');
+                return;
+            }
+
+            const nouvelleCategorie = {
+                id: genererID(),
+                nom: nom,
+                couleur: couleur,
+                defaut: false
+            };
+
+            categoriesPersonnalisees.push(nouvelleCategorie);
+            toutesLesCategories.push(nouvelleCategorie);
+            localStorage.setItem('categoriesPersonnalisees', JSON.stringify(categoriesPersonnalisees));
+            
+            // Réinitialiser le formulaire
+            document.getElementById('categorieNom').value = '';
+            
+            afficherCategories();
+            chargerCategoriesDansSelect();
+        }
+
+        function supprimerCategorie(id) {
+            // Vérifier si la catégorie est utilisée dans des dépenses
+            const estUtilisee = depensesVariables.some(d => d.categorie === id);
+            
+            if (estUtilisee) {
+                alert('Impossible de supprimer cette catégorie car elle est utilisée dans vos dépenses');
+                return;
+            }
+
+            if (confirm('Voulez-vous vraiment supprimer cette catégorie ?')) {
+                categoriesPersonnalisees = categoriesPersonnalisees.filter(c => c.id !== id);
+                toutesLesCategories = [...categoriesParDefaut, ...categoriesPersonnalisees];
+                localStorage.setItem('categoriesPersonnalisees', JSON.stringify(categoriesPersonnalisees));
+                
+                afficherCategories();
+                chargerCategoriesDansSelect();
+            }
+        }
+
+        function afficherCategories() {
+            const container = document.getElementById('listeCategories');
+            
+            if (categoriesPersonnalisees.length === 0) {
+                container.innerHTML = '<p class="text-muted" style="font-size: 0.9rem;">Aucune catégorie personnalisée. Les catégories par défaut sont disponibles.</p>';
+                return;
+            }
+
+            container.innerHTML = categoriesPersonnalisees.map(cat => `
+                <div class="categorie-item">
+                    <span class="badge badge-${cat.couleur}">${cat.nom}</span>
+                    <button class="btn btn-danger" onclick="supprimerCategorie('${cat.id}')">✕</button>
+                </div>
+            `).join('');
+        }
+
+        function chargerCategoriesDansSelect() {
+            const select = document.getElementById('variableCategorie');
+            
+            select.innerHTML = toutesLesCategories.map(cat => `
+                <option value="${cat.id}">${cat.nom}</option>
+            `).join('');
+        }
+
+        function obtenirCouleurCategorie(categorieId) {
+            const categorie = toutesLesCategories.find(c => c.id === categorieId);
+            return categorie ? categorie.couleur : 'autre';
+        }
+
+        function obtenirNomCategorie(categorieId) {
+            const categorie = toutesLesCategories.find(c => c.id === categorieId);
+            return categorie ? categorie.nom : categorieId;
+        }
+
+        // ========================================
+        // GESTION DES REVENUS
+        // ========================================
+        
+        function ajouterRevenu() {
+            const nom = document.getElementById('revenuNom').value.trim();
+            const montant = parseFloat(document.getElementById('revenuMontant').value);
+            const date = document.getElementById('revenuDate').value;
+
+            if (!nom || !montant || montant <= 0 || !date) {
+                alert('Veuillez remplir tous les champs correctement');
+                return;
+            }
+
+            const revenu = {
+                id: genererID(),
+                nom: nom,
+                montant: montant,
+                date: date
+            };
+
+            revenus.push(revenu);
+            localStorage.setItem('revenus', JSON.stringify(revenus));
+            
+            // Réinitialiser le formulaire
+            document.getElementById('revenuNom').value = '';
+            document.getElementById('revenuMontant').value = '';
+            document.getElementById('revenuDate').value = '';
+
+            afficherRevenus();
+            mettreAJourDashboard();
+        }
+
+        function supprimerRevenu(id) {
+            if (confirm('Voulez-vous vraiment supprimer ce revenu ?')) {
+                revenus = revenus.filter(r => r.id !== id);
+                localStorage.setItem('revenus', JSON.stringify(revenus));
+                afficherRevenus();
+                mettreAJourDashboard();
+            }
+        }
+
+        function afficherRevenus() {
+            const tbody = document.getElementById('listeRevenus');
+            
+            if (revenus.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" class="empty-state">Aucun revenu enregistré</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = revenus.map(revenu => `
+                <tr>
+                    <td>${revenu.nom}</td>
+                    <td><strong>${formatFCFA(revenu.montant)}</strong></td>
+                    <td>${new Date(revenu.date).toLocaleDateString('fr-FR')}</td>
+                    <td>
+                        <button class="btn btn-danger" onclick="supprimerRevenu('${revenu.id}')">🗑️</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // ========================================
+        // GESTION DES DÉPENSES FIXES
+        // ========================================
+        
+        function ajouterDepenseFixe() {
+            const nom = document.getElementById('fixeNom').value.trim();
+            const montant = parseFloat(document.getElementById('fixeMontant').value);
+            const frequence = document.getElementById('fixeFrequence').value;
+            const date = document.getElementById('fixeDate').value;
+
+            if (!nom || !montant || montant <= 0 || !date) {
+                alert('Veuillez remplir tous les champs correctement');
+                return;
+            }
+
+            const depense = {
+                id: genererID(),
+                nom: nom,
+                montant: montant,
+                frequence: frequence,
+                date: date
+            };
+
+            depensesFixes.push(depense);
+            localStorage.setItem('depensesFixes', JSON.stringify(depensesFixes));
+            
+            // Réinitialiser le formulaire
+            document.getElementById('fixeNom').value = '';
+            document.getElementById('fixeMontant').value = '';
+            document.getElementById('fixeDate').value = '';
+
+            afficherDepensesFixes();
+            mettreAJourDashboard();
+        }
+
+        function supprimerDepenseFixe(id) {
+            if (confirm('Voulez-vous vraiment supprimer cette dépense fixe ?')) {
+                depensesFixes = depensesFixes.filter(d => d.id !== id);
+                localStorage.setItem('depensesFixes', JSON.stringify(depensesFixes));
+                afficherDepensesFixes();
+                mettreAJourDashboard();
+            }
+        }
+
+        function afficherDepensesFixes() {
+            const tbody = document.getElementById('listeDepensesFixes');
+            
+            if (depensesFixes.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="empty-state">Aucune dépense fixe enregistrée</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = depensesFixes.map(depense => `
+                <tr>
+                    <td>${depense.nom}</td>
+                    <td><strong>${formatFCFA(depense.montant)}</strong></td>
+                    <td>${depense.frequence}</td>
+                    <td>${new Date(depense.date).toLocaleDateString('fr-FR')}</td>
+                    <td>
+                        <button class="btn btn-danger" onclick="supprimerDepenseFixe('${depense.id}')">🗑️</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // ========================================
+        // GESTION DES DÉPENSES VARIABLES
+        // ========================================
+        
+        function ajouterDepenseVariable() {
+            const nom = document.getElementById('variableNom').value.trim();
+            const categorie = document.getElementById('variableCategorie').value;
+            const montant = parseFloat(document.getElementById('variableMontant').value);
+            const date = document.getElementById('variableDate').value;
+
+            if (!nom || !montant || montant <= 0 || !date) {
+                alert('Veuillez remplir tous les champs correctement');
+                return;
+            }
+
+            const depense = {
+                id: genererID(),
+                nom: nom,
+                categorie: categorie,
+                montant: montant,
+                date: date
+            };
+
+            depensesVariables.push(depense);
+            localStorage.setItem('depensesVariables', JSON.stringify(depensesVariables));
+            
+            // Réinitialiser le formulaire
+            document.getElementById('variableNom').value = '';
+            document.getElementById('variableMontant').value = '';
+            document.getElementById('variableDate').value = '';
+
+            afficherDepensesVariables();
+            mettreAJourDashboard();
+            mettreAJourGraphiques();
+        }
+
+        function supprimerDepenseVariable(id) {
+            if (confirm('Voulez-vous vraiment supprimer cette dépense ?')) {
+                depensesVariables = depensesVariables.filter(d => d.id !== id);
+                localStorage.setItem('depensesVariables', JSON.stringify(depensesVariables));
+                afficherDepensesVariables();
+                mettreAJourDashboard();
+                mettreAJourGraphiques();
+            }
+        }
+
+        function afficherDepensesVariables() {
+            const tbody = document.getElementById('listeDepensesVariables');
+            
+            if (depensesVariables.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="empty-state">Aucune dépense variable enregistrée</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = depensesVariables.map(depense => {
+                const couleurCategorie = obtenirCouleurCategorie(depense.categorie);
+                const nomCategorie = obtenirNomCategorie(depense.categorie);
+                
+                return `
+                    <tr>
+                        <td>${depense.nom}</td>
+                        <td><span class="badge badge-${couleurCategorie}">${nomCategorie}</span></td>
+                        <td><strong>${formatFCFA(depense.montant)}</strong></td>
+                        <td>${new Date(depense.date).toLocaleDateString('fr-FR')}</td>
+                        <td>
+                            <button class="btn btn-danger" onclick="supprimerDepenseVariable('${depense.id}')">🗑️</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // ========================================
+        // GESTION DES DÉPENSES PROGRAMMÉES
+        // ========================================
+        
+        function ajouterDepenseProgrammee() {
+            const nom = document.getElementById('programmeeNom').value.trim();
+            const montant = parseFloat(document.getElementById('programmeeMontant').value);
+            const date = document.getElementById('programmeeDate').value;
+
+            if (!nom || !montant || montant <= 0 || !date) {
+                alert('Veuillez remplir tous les champs correctement');
+                return;
+            }
+
+            const depense = {
+                id: genererID(),
+                nom: nom,
+                montant: montant,
+                date: date
+            };
+
+            depensesProgrammees.push(depense);
+            localStorage.setItem('depensesProgrammees', JSON.stringify(depensesProgrammees));
+            
+            // Réinitialiser le formulaire
+            document.getElementById('programmeeNom').value = '';
+            document.getElementById('programmeeMontant').value = '';
+            document.getElementById('programmeeDate').value = '';
+
+            afficherDepensesProgrammees();
+            mettreAJourDashboard();
+        }
+
+        function supprimerDepenseProgrammee(id) {
+            if (confirm('Voulez-vous vraiment supprimer cette dépense programmée ?')) {
+                depensesProgrammees = depensesProgrammees.filter(d => d.id !== id);
+                localStorage.setItem('depensesProgrammees', JSON.stringify(depensesProgrammees));
+                afficherDepensesProgrammees();
+                mettreAJourDashboard();
+            }
+        }
+
+        function afficherDepensesProgrammees() {
+            const tbody = document.getElementById('listeDepensesProgrammees');
+            const aujourdhui = new Date();
+            
+            if (depensesProgrammees.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="empty-state">Aucune dépense programmée</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = depensesProgrammees.map(depense => {
+                const dateDepense = new Date(depense.date);
+                const diffJours = Math.ceil((dateDepense - aujourdhui) / (1000 * 60 * 60 * 24));
+                
+                let statut = '';
+                if (diffJours < 0) {
+                    statut = '<span class="text-danger">⚠️ En retard</span>';
+                } else if (diffJours <= 7) {
+                    statut = '<span class="text-warning">⏰ Bientôt</span>';
+                } else {
+                    statut = '<span class="text-muted">📅 À venir</span>';
+                }
+
+                return `
+                    <tr>
+                        <td>${depense.nom}</td>
+                        <td><strong>${formatFCFA(depense.montant)}</strong></td>
+                        <td>${new Date(depense.date).toLocaleDateString('fr-FR')}</td>
+                        <td>${statut}</td>
+                        <td>
+                            <button class="btn btn-danger" onclick="supprimerDepenseProgrammee('${depense.id}')">🗑️</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // ========================================
+        // GESTION DE L'ÉPARGNE
+        // ========================================
+        
+        function sauvegarderObjectifEpargne() {
+            objectifEpargne = parseFloat(document.getElementById('objectifEpargne').value) || 0;
+            localStorage.setItem('objectifEpargne', objectifEpargne);
+            mettreAJourProgressionEpargne();
+        }
+
+        function sauvegarderMontantEpargne() {
+            montantEpargne = parseFloat(document.getElementById('montantEpargne').value) || 0;
+            localStorage.setItem('montantEpargne', montantEpargne);
+            mettreAJourProgressionEpargne();
+        }
+
+        function mettreAJourProgressionEpargne() {
+            const pourcentage = objectifEpargne > 0 ? Math.min((montantEpargne / objectifEpargne) * 100, 100) : 0;
+            const progressBar = document.getElementById('epargneProgress');
+            const label = document.getElementById('epargneLabel');
+            const pourcentageText = document.getElementById('epargnePourcentage');
+
+            progressBar.style.width = pourcentage + '%';
+            progressBar.textContent = Math.round(pourcentage) + '%';
+            pourcentageText.textContent = Math.round(pourcentage) + '%';
+
+            // Changer la couleur selon la progression
+            progressBar.className = 'progress-fill';
+            if (pourcentage >= 100) {
+                progressBar.classList.add('success');
+                label.innerHTML = '🎉 Objectif atteint !';
+            } else if (pourcentage >= 50) {
+                progressBar.classList.add('success');
+                label.innerHTML = '💪 En bonne voie';
+            } else {
+                progressBar.classList.add('warning');
+                label.innerHTML = '📊 En cours';
+            }
+        }
+
+        // ========================================
+        // CALCULS ET DASHBOARD
+        // ========================================
+        
+        function calculerTotaux() {
+            const totalRevenus = revenus.reduce((sum, r) => sum + r.montant, 0);
+            
+            const totalDepensesFixes = depensesFixes.reduce((sum, d) => sum + d.montant, 0);
+            const totalDepensesVariables = depensesVariables.reduce((sum, d) => sum + d.montant, 0);
+            const totalDepensesProgrammees = depensesProgrammees.reduce((sum, d) => sum + d.montant, 0);
+            
+            const totalDepenses = totalDepensesFixes + totalDepensesVariables;
+            const resteAVivre = totalRevenus - totalDepenses - totalDepensesProgrammees;
+            const capaciteEpargne = resteAVivre > 0 ? resteAVivre : 0;
+
+            return {
+                totalRevenus,
+                totalDepensesFixes,
+                totalDepensesVariables,
+                totalDepensesProgrammees,
+                totalDepenses,
+                resteAVivre,
+                capaciteEpargne
+            };
+        }
+
+        function mettreAJourDashboard() {
+            const totaux = calculerTotaux();
+
+            document.getElementById('totalRevenus').textContent = formatFCFA(totaux.totalRevenus);
+            document.getElementById('totalDepenses').textContent = formatFCFA(totaux.totalDepenses);
+            
+            const resteElement = document.getElementById('resteAVivre');
+            resteElement.textContent = formatFCFA(totaux.resteAVivre);
+            resteElement.parentElement.className = totaux.resteAVivre >= 0 ? 'card-stat success' : 'card-stat danger';
+
+            document.getElementById('capaciteEpargne').textContent = formatFCFA(totaux.capaciteEpargne);
+        }
+
+        // ========================================
+        // GRAPHIQUES
+        // ========================================
+        
+        let chartRepartition = null;
+        let chartCategories = null;
+
+        function mettreAJourGraphiques() {
+            const totaux = calculerTotaux();
+
+            // Graphique de répartition
+            const ctxRepartition = document.getElementById('chartRepartition').getContext('2d');
+            
+            if (chartRepartition) {
+                chartRepartition.destroy();
+            }
+
+            chartRepartition = new Chart(ctxRepartition, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Dépenses Fixes', 'Dépenses Variables', 'Dépenses Programmées', 'Reste'],
+                    datasets: [{
+                        data: [
+                            totaux.totalDepensesFixes,
+                            totaux.totalDepensesVariables,
+                            totaux.totalDepensesProgrammees,
+                            Math.max(totaux.resteAVivre, 0)
+                        ],
+                        backgroundColor: ['#8B7355', '#A0826D', '#C19A6B', '#C0C0C0']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.label + ': ' + formatFCFA(context.parsed);
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Graphique par catégorie
+            const categoriesData = {};
+            depensesVariables.forEach(d => {
+                const nomCat = obtenirNomCategorie(d.categorie);
+                if (!categoriesData[nomCat]) {
+                    categoriesData[nomCat] = 0;
+                }
+                categoriesData[nomCat] += d.montant;
+            });
+
+            const ctxCategories = document.getElementById('chartCategories').getContext('2d');
+            
+            if (chartCategories) {
+                chartCategories.destroy();
+            }
+
+            chartCategories = new Chart(ctxCategories, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(categoriesData),
+                    datasets: [{
+                        label: 'Dépenses (FCFA)',
+                        data: Object.values(categoriesData),
+                        backgroundColor: '#8B7355'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return formatFCFA(context.parsed.y);
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return formatFCFA(value);
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // ========================================
+        // INITIALISATION
+        // ========================================
+        
+        function initialiser() {
+            // Définir la date par défaut à aujourd'hui
+            const aujourdhui = obtenirDateActuelle();
+            document.getElementById('revenuDate').value = aujourdhui;
+            document.getElementById('fixeDate').value = aujourdhui;
+            document.getElementById('variableDate').value = aujourdhui;
+            document.getElementById('programmeeDate').value = aujourdhui;
+
+            // Charger les valeurs d'épargne
+            document.getElementById('objectifEpargne').value = objectifEpargne;
+            document.getElementById('montantEpargne').value = montantEpargne;
+
+            // Charger les catégories dans le select
+            chargerCategoriesDansSelect();
+            afficherCategories();
+
+            // Afficher toutes les données
+            afficherRevenus();
+            afficherDepensesFixes();
+            afficherDepensesVariables();
+            afficherDepensesProgrammees();
+            mettreAJourDashboard();
+            mettreAJourProgressionEpargne();
+            mettreAJourGraphiques();
+        }
+
+        // Lancer l'initialisation au chargement de la page
+        document.addEventListener('DOMContentLoaded', initialiser);
+    </script>
+</body>
+</html>
