@@ -178,6 +178,18 @@
             background: #6B5335;
         }
 
+        .btn-edit {
+            background: var(--chrome-light);
+            color: #4A3728;
+            padding: 6px 12px;
+            font-size: 0.85rem;
+            margin-right: 5px;
+        }
+
+        .btn-edit:hover {
+            background: var(--chrome-dark);
+        }
+
         /* ===== FORMS ===== */
         .form-group {
             display: grid;
@@ -514,7 +526,7 @@
                             <th>Nom</th>
                             <th>Montant</th>
                             <th>Date</th>
-                            <th>Action</th>
+                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody id="listeRevenus"></tbody>
@@ -559,7 +571,7 @@
                             <th>Montant</th>
                             <th>Fréquence</th>
                             <th>Date</th>
-                            <th>Action</th>
+                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody id="listeDepensesFixes"></tbody>
@@ -635,7 +647,7 @@
                             <th>Catégorie</th>
                             <th>Montant</th>
                             <th>Date</th>
-                            <th>Action</th>
+                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody id="listeDepensesVariables"></tbody>
@@ -673,7 +685,7 @@
                             <th>Montant</th>
                             <th>Date prévue</th>
                             <th>Statut</th>
-                            <th>Action</th>
+                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody id="listeDepensesProgrammees"></tbody>
@@ -901,6 +913,24 @@
             }
         }
 
+        function modifierRevenu(id) {
+            const revenu = revenus.find(r => r.id === id);
+            if (!revenu) return;
+
+            document.getElementById('revenuNom').value = revenu.nom;
+            document.getElementById('revenuMontant').value = revenu.montant;
+            document.getElementById('revenuDate').value = revenu.date;
+
+            // Supprimer l'ancien et le nouveau sera ajouté
+            revenus = revenus.filter(r => r.id !== id);
+            localStorage.setItem('revenus', JSON.stringify(revenus));
+            afficherRevenus();
+            mettreAJourDashboard();
+
+            // Scroll vers le formulaire
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
         function afficherRevenus() {
             const tbody = document.getElementById('listeRevenus');
             
@@ -915,6 +945,7 @@
                     <td><strong>${formatFCFA(revenu.montant)}</strong></td>
                     <td>${new Date(revenu.date).toLocaleDateString('fr-FR')}</td>
                     <td>
+                        <button class="btn btn-edit" onclick="modifierRevenu('${revenu.id}')">✏️</button>
                         <button class="btn btn-danger" onclick="supprimerRevenu('${revenu.id}')">🗑️</button>
                     </td>
                 </tr>
@@ -965,6 +996,23 @@
             }
         }
 
+        function modifierDepenseFixe(id) {
+            const depense = depensesFixes.find(d => d.id === id);
+            if (!depense) return;
+
+            document.getElementById('fixeNom').value = depense.nom;
+            document.getElementById('fixeMontant').value = depense.montant;
+            document.getElementById('fixeFrequence').value = depense.frequence;
+            document.getElementById('fixeDate').value = depense.date;
+
+            depensesFixes = depensesFixes.filter(d => d.id !== id);
+            localStorage.setItem('depensesFixes', JSON.stringify(depensesFixes));
+            afficherDepensesFixes();
+            mettreAJourDashboard();
+
+            document.getElementById('fixeNom').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
         function afficherDepensesFixes() {
             const tbody = document.getElementById('listeDepensesFixes');
             
@@ -980,6 +1028,7 @@
                     <td>${depense.frequence}</td>
                     <td>${new Date(depense.date).toLocaleDateString('fr-FR')}</td>
                     <td>
+                        <button class="btn btn-edit" onclick="modifierDepenseFixe('${depense.id}')">✏️</button>
                         <button class="btn btn-danger" onclick="supprimerDepenseFixe('${depense.id}')">🗑️</button>
                     </td>
                 </tr>
@@ -1032,6 +1081,24 @@
             }
         }
 
+        function modifierDepenseVariable(id) {
+            const depense = depensesVariables.find(d => d.id === id);
+            if (!depense) return;
+
+            document.getElementById('variableNom').value = depense.nom;
+            document.getElementById('variableCategorie').value = depense.categorie;
+            document.getElementById('variableMontant').value = depense.montant;
+            document.getElementById('variableDate').value = depense.date;
+
+            depensesVariables = depensesVariables.filter(d => d.id !== id);
+            localStorage.setItem('depensesVariables', JSON.stringify(depensesVariables));
+            afficherDepensesVariables();
+            mettreAJourDashboard();
+            mettreAJourGraphiques();
+
+            document.getElementById('variableNom').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
         function afficherDepensesVariables() {
             const tbody = document.getElementById('listeDepensesVariables');
             
@@ -1051,6 +1118,7 @@
                         <td><strong>${formatFCFA(depense.montant)}</strong></td>
                         <td>${new Date(depense.date).toLocaleDateString('fr-FR')}</td>
                         <td>
+                            <button class="btn btn-edit" onclick="modifierDepenseVariable('${depense.id}')">✏️</button>
                             <button class="btn btn-danger" onclick="supprimerDepenseVariable('${depense.id}')">🗑️</button>
                         </td>
                     </tr>
@@ -1100,6 +1168,22 @@
             }
         }
 
+        function modifierDepenseProgrammee(id) {
+            const depense = depensesProgrammees.find(d => d.id === id);
+            if (!depense) return;
+
+            document.getElementById('programmeeNom').value = depense.nom;
+            document.getElementById('programmeeMontant').value = depense.montant;
+            document.getElementById('programmeeDate').value = depense.date;
+
+            depensesProgrammees = depensesProgrammees.filter(d => d.id !== id);
+            localStorage.setItem('depensesProgrammees', JSON.stringify(depensesProgrammees));
+            afficherDepensesProgrammees();
+            mettreAJourDashboard();
+
+            document.getElementById('programmeeNom').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
         function afficherDepensesProgrammees() {
             const tbody = document.getElementById('listeDepensesProgrammees');
             const aujourdhui = new Date();
@@ -1129,6 +1213,7 @@
                         <td>${new Date(depense.date).toLocaleDateString('fr-FR')}</td>
                         <td>${statut}</td>
                         <td>
+                            <button class="btn btn-edit" onclick="modifierDepenseProgrammee('${depense.id}')">✏️</button>
                             <button class="btn btn-danger" onclick="supprimerDepenseProgrammee('${depense.id}')">🗑️</button>
                         </td>
                     </tr>
